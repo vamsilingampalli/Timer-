@@ -1,0 +1,80 @@
+import SwiftUI
+
+@main
+struct CountdownTimerApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+    }
+}
+
+struct ContentView: View {
+    @State private var timeRemaining = 60
+    @State private var isActive = false
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+
+    var body: some View {
+        VStack {
+            Text("Time Remaining: \(timeRemaining) seconds")
+                .font(.headline)
+                .padding()
+
+            ZStack {
+                Circle()
+                    .stroke(lineWidth: 10)
+                    .opacity(0.3)
+                    .foregroundColor(.blue)
+
+                Circle()
+                    .trim(from: 0, to: CGFloat(timeRemaining) / 60)
+                    .stroke(style: StrokeStyle(lineWidth: 10, lineCap: .round, lineJoin: .round))
+                    .foregroundColor(.blue)
+                    .rotationEffect(.degrees(-90))
+                    .animation(.easeInOut)
+            }
+            .padding()
+            .frame(width: 150, height: 150)
+
+            HStack(spacing: 20) {
+                Button("+10 sec") {
+                    addTime()
+                }
+                .padding()
+                .background(Color.green)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+
+                Button("Skip") {
+                    resetTimer()
+                }
+                .padding()
+                .background(Color.red)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+            }
+            .padding()
+        }
+        .onReceive(timer) { _ in
+            if self.isActive {
+                if self.timeRemaining > 0 {
+                    self.timeRemaining -= 1
+                } else {
+                    // Timer reached zero, handle accordingly
+                    // You can add any additional actions here.
+                }
+            }
+        }
+        .onAppear() {
+            self.isActive = true
+        }
+    }
+
+    func addTime() {
+        self.timeRemaining += 10
+    }
+
+    func resetTimer() {
+        self.timeRemaining = 0
+    }
+}
